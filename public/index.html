@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Real-Time Chat App</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle, #141E30, #243B55);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, #ff416c, #ff4b2b);
+      -webkit-background-clip: text;
+      color: transparent;
+      animation: neonGlow 2s infinite alternate;
+    }
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(36, 59, 85, 0.85);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      width: 90%;
+      max-width: 400px;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 15px 0;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+    input:focus {
+      outline: none;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 25px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      background: linear-gradient(to right, #36d1dc, #5b86e5);
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 20px rgba(91, 134, 229, 0.6);
+    }
+    #messageArea {
+      margin-top: 20px;
+      width: 90%;
+      max-width: 400px;
+      padding: 15px;
+      background: rgba(36, 59, 85, 0.8);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      overflow-y: auto;
+      max-height: 300px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    #messageArea p {
+      margin: 8px 0;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 1rem;
+      word-wrap: break-word;
+    }
+    #messageArea p:first-child {
+      background-color: #5b86e5;
+      color: #fff;
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    #messageArea p:not(:first-child) {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ddd;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+    @keyframes neonGlow {
+      0% {
+        text-shadow: 0 0 5px #ff416c, 0 0 10px #ff416c, 0 0 15px #ff4b2b, 0 0 20px #ff4b2b;
+      }
+      100% {
+        text-shadow: 0 0 10px #ff4b2b, 0 0 20px #ff4b2b, 0 0 30px #ff416c, 0 0 40px #ff416c;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Chat App</h1>
+  <h2>Glowing Conversations</h2>
+  <form id="form">
+    <input type="text" placeholder="Enter Your Name" id="myname" required>
+    <input type="text" placeholder="Type Your Message" id="message">
+    <button>Send</button>
+  </form>
+  <div id="messageArea"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const form = document.getElementById('form');
+    const myname = document.getElementById('myname');
+    const message = document.getElementById('message');
+    const messageArea = document.getElementById("messageArea");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!myname.value.trim()) {
+        alert("Please enter your name!");
+        return;
+      }
+      if (message.value.trim()) {
+        socket.emit("send message", { name: myname.value, text: message.value });
+        message.value = "";
+      }
+    });
+
+    socket.on("send message", (data) => {
+      const msg = document.createElement("p");
+      msg.textContent = `${data.name}: ${data.text}`;
+      messageArea.appendChild(msg);
+    });
+  </script>
+</body>
+</html>
